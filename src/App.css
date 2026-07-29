@@ -1,0 +1,75 @@
+.app{
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #f5f5f5ff;
+}
+
+.header {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border-bottom: 1px solid #e8e8e8;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .message-list {
+    flex: 1;               /* 占满中间剩余空间 */
+    overflow-y: auto;      /* 消息多了可以滚动 */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;             /* 每条消息之间的间距 */
+  }
+  .empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #999;
+    font-size: 16px;
+  }
+  .message-row {
+    display: flex;
+    gap: 8px;
+    max-width: 70%;
+  }
+  
+  .message-row.user {
+    align-self: flex-end;       /* 用户消息靠右 */
+    flex-direction: row-reverse;
+  }
+  
+  .message-row.assistant {
+    align-self: flex-start;     /* 助手消息靠左 */
+  }
+  .bubble {
+    padding: 10px 14px;
+    border-radius: 12px;
+    line-height: 1.6;
+    word-break: break-word;
+  }
+  
+  .message-row.user .bubble {
+    background: #1677ff;
+    color: #fff;
+  }
+  
+  .message-row.assistant .bubble {
+    background: #fff;
+    color: #333;
+    border: 1px solid #e8e8e8;
+  }
+  .time {
+    font-size: 11px;
+    color: #999;
+    margin-top: 4px;
+  }
+  .input-area {
+    padding: 16px 20px;
+    background: #fff;
+    border-top: 1px solid #e8e8e8;
+  }
+  
