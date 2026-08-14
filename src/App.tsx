@@ -3,8 +3,9 @@ import type { ChatMessage } from "./types/chat";
 import ChatMessageComponet from "./components/ChatMessage";
 import ChatInput from "./components/ChatInput";
 import './App.css'
+import PdfUpload from "./components/PdfUpload";
 import { sendMessageStream } from "./service/api";
-
+import {  message } from "antd";
 /**
  * App 主组件
  * 负责管理聊天消息列表、处理发送逻辑、自动滚动
@@ -16,6 +17,10 @@ function App() {
     const [loading, setLoading] = useState(false)
     // 消息列表底部的 ref，用于自动滚动
     const messagesEndRef = useRef<HTMLDivElement>(null)
+
+    const [pdfContext,setPdfContext] = useState<string>('')
+    const [pdfName,setPdfName] = useState<string>('')
+
 
     // 监听消息变化，自动滚动到底部
     useEffect(() => {
@@ -50,9 +55,11 @@ function App() {
         }
         setMessages(prev => [...prev, loadingMessage])
 
+
+        const fullContent = pdfContext?`以下是参考资料《${pdfName}》的内容：\n\n${pdfContext.slice(0, 3000)}\n\n---\n\n用户问题：${content}`:content
         // 4. 流式接收 AI 回复
         try {
-            await sendMessageStream(content, (chunk) => {
+            await sendMessageStream(fullContent, (chunk) => {
                 // 每收到一块内容，更新对应消息的内容
                 setMessages(prev =>
                     prev.map(msg =>
@@ -77,11 +84,25 @@ function App() {
         }
     }
 
+    /**
+     * 
+     * 上传处理函数
+     * @param 
+     */
+
+    const handlePdfUpload=(text:string,filename:string)=>{
+        setPdfContext(text)
+        setPdfName(filename)
+        message.success(`已加载：${filename}`)
+    }
+
+
+
     return (
         <div className="app">
             {/* 头部标题栏 */}
             <div className="header">
-                <h2>aichat</h2>
+                <h2>demo</h2>
             </div>
 
             {/* 消息列表区域 */}
@@ -102,9 +123,10 @@ function App() {
             </div>
 
             {/* 输入框区域 */}
-            <div className="input-area">
-                <ChatInput onSend={handleSend} loading={loading} />
-            </div>
+            <div className="input-area" style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+    <PdfUpload onUpload={handlePdfUpload} loading={loading} />
+    <ChatInput onSend={handleSend} loading={loading} />
+</div>
         </div>
     )
 }

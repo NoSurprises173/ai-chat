@@ -3,7 +3,7 @@ import { Input, Button } from "antd";
 import { SendOutlined } from "@ant-design/icons";
 
 interface Props {
-    onSend: (content: string => void   // 发送消息的回调函数
+    onSend: (content: string )=> void   // 发送消息的回调函数
     loading?: boolean                    // 是否正在等待回复
 }
 

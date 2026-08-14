@@ -89,3 +89,23 @@ export async function sendMessageStream(
         }
     }
 }
+
+/**
+ * 上传pdf文件
+ * @param file pdf 文件对象
+ * @returns 提取的文本内容
+ */
+export async function uploadPDF(file: File): Promise<{ filename: string; pages: number; text: string }> {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await fetch(`${API_BASE}/api/upload`, {
+        method: 'POST',
+        body: formData
+    })
+
+    if (!response.ok) {
+        throw new Error(`上传失败：${response.status}`)
+    }
+    return response.json()
+}

@@ -7,6 +7,9 @@ import express from 'express'
 import cors from 'cors'
 import OpenAI from 'openai'
 import dotenv from 'dotenv'
+import multer from 'multer'
+import pdfParse from 'pdf-parse'
+
 
 // 加载 .env 环境变量
 dotenv.config()
@@ -79,6 +82,42 @@ app.post('/api/chat', async (req, res) => {
         res.end()
     }
 })
+
+const upload = multer({ storage: multer.memoryStorage() })
+
+/**
+ * POST /api/upload-PDF上传接口
+ * 接收pdf文件，提取文本内容返回
+ * 
+ */
+
+app.post('/api/upload', upload.single('file'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: '没有上传文件。' })
+        }
+        const originalName = Buffer.from(req.file.originalname, 'latin1').toString('utf8')
+
+        if (req.file.mimetype !== 'application/pdf') {
+            return res.status(400).json({ error: '只支持PDF文件' })
+        }
+
+        const pdfData = await pdfParse(req.file.buffer)
+        console.log(`📄 PDF 上传成功: ${req.file.originalname}`)
+        console.log(`   页数: ${pdfData.numpages}, 字符数: ${pdfData.text.length}`)
+        res.json({
+            filename: originalName,
+            pages: pdfData.numpages,
+            text: pdfData.text
+        })
+
+    } catch (error: any) {
+        console.error(`❌ PDF 处理失败: ${error.message}`)
+        res.status(500).json({ error: error.message })
+    }
+
+})
+
 
 // 启动服务器
 const PORT = process.env.PORT || 3001
