@@ -32,12 +32,6 @@ const PdfUpload: React.FC<Props> = ({ onUpload, loading }) => {
             return
         }
 
-        // 校验文件大小（限制 10MB）
-        if (file.size > 10 * 1024 * 1024) {
-            message.error('文件大小不能超过 10MB')
-            return
-        }
-
         try {
             message.loading('正在解析 PDF...')
             const result = await uploadPDF(file)

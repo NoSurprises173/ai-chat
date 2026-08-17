@@ -9,7 +9,7 @@ import OpenAI from 'openai'
 import dotenv from 'dotenv'
 import multer from 'multer'
 import pdfParse from 'pdf-parse'
-
+import { processDocument, retrieveContext } from './rag/ragService'
 
 // 加载 .env 环境变量
 dotenv.config()
@@ -37,17 +37,20 @@ app.post('/api/chat', async (req, res) => {
 
     try {
         const { message } = req.body
+        const context = await retrieveContext(message)
 
         // 设置 SSE 响应头
         res.setHeader('Content-Type', 'text/event-stream')   // 事件流格式
         res.setHeader('Cache-Control', 'no-cache')            // 禁用缓存
         res.setHeader('Connection', 'keep-alive')             // 保持连接
-
+        const systemContent = context
+            ? `你是AI助手。以下是参考资料：\n\n${context}\n\n请根据以上资料回答用户问题。`
+            : '你是一个有帮助的AI助手。'
         // 调用 OpenAI API，开启流式模式
         const stream = await client.chat.completions.create({
             model: process.env.MODEL as string,
             messages: [
-                { role: 'system', content: '你是一个有帮助的AI助手。' },
+                { role: 'system', content: systemContent },
                 { role: 'user', content: message }
             ],
             stream: true   // 开启流式输出
@@ -105,6 +108,8 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
         const pdfData = await pdfParse(req.file.buffer)
         console.log(`📄 PDF 上传成功: ${req.file.originalname}`)
         console.log(`   页数: ${pdfData.numpages}, 字符数: ${pdfData.text.length}`)
+        await processDocument(pdfData.text, originalName)
+
         res.json({
             filename: originalName,
             pages: pdfData.numpages,

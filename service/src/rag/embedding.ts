@@ -14,6 +14,7 @@ export async function getEmbeddings(texts: string[]): Promise<number[][]> {
         })
     })
     const result = await response.json()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return result.data.map((item: any) => item.embedding)
 
 }

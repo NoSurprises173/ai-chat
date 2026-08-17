@@ -56,10 +56,10 @@ function App() {
         setMessages(prev => [...prev, loadingMessage])
 
 
-        const fullContent = pdfContext?`以下是参考资料《${pdfName}》的内容：\n\n${pdfContext.slice(0, 3000)}\n\n---\n\n用户问题：${content}`:content
+        // const fullContent = pdfContext?`以下是参考资料《${pdfName}》的内容：\n\n${pdfContext.slice(0, 3000)}\n\n---\n\n用户问题：${content}`:content
         // 4. 流式接收 AI 回复
         try {
-            await sendMessageStream(fullContent, (chunk) => {
+            await sendMessageStream(content, (chunk) => {
                 // 每收到一块内容，更新对应消息的内容
                 setMessages(prev =>
                     prev.map(msg =>
