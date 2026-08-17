@@ -8,7 +8,7 @@ interface VectorEntry {
     }
 }
 
-const vectorMap = new Map<string, VectorEntry>()
+const vectorMap1 = new Map<string, VectorEntry>()
 
 
 export function addVectors(entries: VectorEntry[]) {
