@@ -31,13 +31,25 @@ const ChatMessageComponet: React.FC<Props> = ({ message }) => {
                 style={{ backgroundColor: isUser ? '#1677ff' : '#87d068' }}
             />
 
-            <div>
+            <div className="message-content">
                 {/* 消息气泡：loading 时显示提示，否则渲染 Markdown 内容 */}
                 <div className="bubble">
                     {message.loading ? '正在输入...' : <MarkdownRenderer content={message.content} />}
                 </div>
                 {/* 时间戳 */}
                 <div className="time">{time}</div>
+                {/* 引用来源 */}
+                {message.sources && message.sources.length > 0 && (
+                    <div className="sources">
+                        <div className="sources-title">📚 引用来源：</div>
+                        {message.sources.map((s, i) => (
+                            <div key={i} className="source-item">
+                                <span className="source-name">{s.fileName}</span>
+                                <span className="source-text">{s.text}...</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     )

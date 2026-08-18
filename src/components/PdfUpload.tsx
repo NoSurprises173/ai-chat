@@ -4,7 +4,6 @@ import { UploadOutlined } from "@ant-design/icons";
 import { uploadPDF } from "../service/api";
 
 interface Props {
-    onUpload: (text: string, filename: string) => void
     loading?: boolean
 }
 
@@ -12,7 +11,7 @@ interface Props {
  * PdfUpload 组件
  * 负责 PDF 文件选择、上传、提取文本
  */
-const PdfUpload: React.FC<Props> = ({ onUpload, loading }) => {
+const PdfUpload: React.FC<Props> = ({  loading }) => {
     // 用 ref 获取 input 元素，方便手动触发点击
     const inputRef = useRef<HTMLInputElement>(null)
 
@@ -36,7 +35,6 @@ const PdfUpload: React.FC<Props> = ({ onUpload, loading }) => {
             message.loading('正在解析 PDF...')
             const result = await uploadPDF(file)
             message.success(`PDF 解析成功：${result.pages} 页`)
-            onUpload(result.text, result.filename)
         } catch (err: any) {
             message.error(`上传失败：${err.message}`)
         }

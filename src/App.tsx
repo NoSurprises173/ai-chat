@@ -12,18 +12,24 @@ import {  message } from "antd";
  */
 function App() {
     // 消息列表状态
-    const [messages, setMessages] = useState<ChatMessage[]>([])
+    const [messages, setMessages] = useState<ChatMessage[]>(()=>{
+        const saved = localStorage.getItem('chat-messages')
+        return saved?JSON.parse(saved):[]
+    })
     // 是否正在等待 AI 回复
     const [loading, setLoading] = useState(false)
     // 消息列表底部的 ref，用于自动滚动
     const messagesEndRef = useRef<HTMLDivElement>(null)
 
-    const [pdfContext,setPdfContext] = useState<string>('')
-    const [pdfName,setPdfName] = useState<string>('')
+    const abortControllerRef = useRef<AbortController|null> (null)
+
+    // const [pdfContext,setPdfContext] = useState<string>('')
+    // const [pdfName,setPdfName] = useState<string>('')
 
 
     // 监听消息变化，自动滚动到底部
     useEffect(() => {
+        localStorage.setItem('chat-messages',JSON.stringify(messages))
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages])
 
@@ -68,7 +74,16 @@ function App() {
                             : msg
                     )
                 )
+            },(sources: { fileName: string; text: string }[])=>{
+                setMessages(prev =>
+                    prev.map(msg =>
+                        msg.id === assistantId
+                            ? { ...msg, sources }
+                            : msg
+                    )
+                )
             })
+
         } catch (err: any) {
             // 请求失败时显示错误信息
             setMessages(prev =>
@@ -79,6 +94,8 @@ function App() {
                 )
             )
         } finally {
+            console.log(messages,'msg1')
+
             // 无论成功失败，关闭 loading 状态
             setLoading(false)
         }
@@ -90,11 +107,11 @@ function App() {
      * @param 
      */
 
-    const handlePdfUpload=(text:string,filename:string)=>{
-        setPdfContext(text)
-        setPdfName(filename)
-        message.success(`已加载：${filename}`)
-    }
+    // const handlePdfUpload=(text:string,filename:string)=>{
+    //     setPdfContext(text)
+    //     setPdfName(filename)
+    //     message.success(`已加载：${filename}`)
+    // }
 
 
 
@@ -124,7 +141,7 @@ function App() {
 
             {/* 输入框区域 */}
             <div className="input-area" style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
-    <PdfUpload onUpload={handlePdfUpload} loading={loading} />
+    <PdfUpload loading={loading} />
     <ChatInput onSend={handleSend} loading={loading} />
 </div>
         </div>

@@ -34,12 +34,15 @@ export async function sendMessage(content: string): Promise<string> {
  */
 export async function sendMessageStream(
     content: string,
-    onChunk: (text: string) => void
+    onChunk: (text: string) => void,
+    onSources: (sources: { fileName: string; text: string }[]) => void,
+    signal?: AbortSignal
 ): Promise<void> {
     const response = await fetch(`${API_BASE}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: content })
+        body: JSON.stringify({ message: content }),
+        signal
     })
 
     if (!response.ok) {
@@ -77,6 +80,9 @@ export async function sendMessageStream(
                     // 收到内容块，调用回调
                     if (parsed.content) {
                         onChunk(parsed.content)
+                    }
+                    if (parsed.sources) {
+                        onSources(parsed.sources)
                     }
                     // 收到错误信息
                     if (parsed.error) {

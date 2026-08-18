@@ -37,14 +37,14 @@ app.post('/api/chat', async (req, res) => {
 
     try {
         const { message } = req.body
-        const context = await retrieveContext(message)
+        const { content, sources } = await retrieveContext(message)
 
         // 设置 SSE 响应头
         res.setHeader('Content-Type', 'text/event-stream')   // 事件流格式
         res.setHeader('Cache-Control', 'no-cache')            // 禁用缓存
         res.setHeader('Connection', 'keep-alive')             // 保持连接
-        const systemContent = context
-            ? `你是AI助手。以下是参考资料：\n\n${context}\n\n请根据以上资料回答用户问题。`
+        const systemContent = content
+            ? `你是AI助手。以下是参考资料：\n\n${content}\n\n请根据以上资料回答用户问题。`
             : '你是一个有帮助的AI助手。'
         // 调用 OpenAI API，开启流式模式
         const stream = await client.chat.completions.create({
@@ -67,7 +67,7 @@ app.post('/api/chat', async (req, res) => {
                 res.write(`data:${JSON.stringify({ content })}\n\n`)
             }
         }
-
+        res.write(`data:${JSON.stringify({ sources })}\n\n`)
         // 发送结束标记
         res.write('data:[DONE]\n\n')
         res.end()

@@ -59,7 +59,8 @@ const ChatInput: React.FC<Props> = ({ onSend, loading }) => {
                 loading={loading}
                 disabled={!value.trim()}
             >
-                发送
+                {!loading?'发送':'暂停'}
+                {/* 发送 */}
             </Button>
         </div>
     )
