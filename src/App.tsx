@@ -47,6 +47,8 @@ function App() {
         }
         setMessages(prev => [...prev, userMessage])
 
+        const controller=  new AbortController()
+        abortControllerRef.current = controller
         // 2. 生成助手消息的 ID（用于后续流式更新）
         const assistantId = (Date.now() + 1).toString()
 
@@ -82,9 +84,18 @@ function App() {
                             : msg
                     )
                 )
-            })
+            },(usage:number)=>{
+                setMessages(prev =>
+                    prev.map(msg =>
+                        msg.id === assistantId
+                            ? { ...msg,token:usage  }
+                            : msg
+                    )
+                )
+            },controller.signal)
 
         } catch (err: any) {
+            if(err.name==='AbortError') return
             // 请求失败时显示错误信息
             setMessages(prev =>
                 prev.map(msg =>
@@ -94,11 +105,22 @@ function App() {
                 )
             )
         } finally {
-            console.log(messages,'msg1')
-
             // 无论成功失败，关闭 loading 状态
             setLoading(false)
         }
+    }
+
+    const handleStop=()=>{
+        abortControllerRef.current?.abort()
+    }
+
+    const handleRegenerate=()=>{
+        const lastUserMsg = [...messages].reverse().find(m=>m.role==='user')
+        if(!lastUserMsg||loading)return
+
+        setMessages(prev=>prev.slice(0,-2))
+
+        handleSend(lastUserMsg.content)
     }
 
     /**
@@ -131,8 +153,8 @@ function App() {
                     </div>
                 )}
                 {/* 渲染每条消息 */}
-                {messages.map(msg => (
-                    <ChatMessageComponet key={msg.id} message={msg} />
+                {messages.map((msg,index) => (
+                    <ChatMessageComponet key={msg.id} message={msg} onRegenerate={handleRegenerate} isLast={index===messages.length-1} />
                 ))}
 
                 {/* 滚动锚点 */}
@@ -140,9 +162,9 @@ function App() {
             </div>
 
             {/* 输入框区域 */}
-            <div className="input-area" style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+            <div className="input-area" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
     <PdfUpload loading={loading} />
-    <ChatInput onSend={handleSend} loading={loading} />
+    <ChatInput onSend={handleSend} loading={loading} onStop={handleStop} />
 </div>
         </div>
     )

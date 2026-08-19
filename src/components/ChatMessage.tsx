@@ -4,7 +4,9 @@ import { UserOutlined, RobotOutlined } from "@ant-design/icons";
 import MarkdownRenderer from "./MarkdownRenderer";
 
 interface Props {
-    message: ChatMessage
+    message: ChatMessage,
+    onRegenerate?:()=>void,
+    isLast:boolean
 }
 
 /**
@@ -12,10 +14,9 @@ interface Props {
  * 负责渲染单条消息，包括头像、内容、时间
  * 用户消息靠右蓝色，助手消息靠左白色
  */
-const ChatMessageComponet: React.FC<Props> = ({ message }) => {
+const ChatMessageComponet: React.FC<Props> = ({ message,onRegenerate,isLast }) => {
     // 判断是否为用户消息
     const isUser = message.role === 'user'
-
     // 格式化时间戳为 HH:mm 格式
     const time = new Date(message.timestamp).toLocaleString('zh-CN', {
         hour: '2-digit',
@@ -50,6 +51,14 @@ const ChatMessageComponet: React.FC<Props> = ({ message }) => {
                         ))}
                     </div>
                 )}
+                {message.token&&<div className="usageClass">共消耗{message.token}token</div>}
+                
+                {!isUser&&!message.loading&&onRegenerate&&isLast&&(
+                    <button onClick={onRegenerate} className="regenerate-btn">
+                                🔄 重新生成
+                    </button>
+                )}
+
             </div>
         </div>
     )

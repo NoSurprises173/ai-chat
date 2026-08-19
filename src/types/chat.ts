@@ -12,7 +12,8 @@ export interface ChatMessage {
     content: string         // 消息内容
     timestamp: number       // 时间戳（毫秒）
     loading?: boolean       // 是否正在加载中（可选）
-    sources?: { fileName: string, text: string }[]
+    sources?: { fileName: string, text: string }[],
+    token?: number
 }
 
 // 聊天状态接口

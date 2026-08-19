@@ -53,9 +53,10 @@ app.post('/api/chat', async (req, res) => {
                 { role: 'system', content: systemContent },
                 { role: 'user', content: message }
             ],
-            stream: true   // 开启流式输出
+            stream: true,   // 开启流式输出
+            stream_options: { include_usage: true }
         })
-
+        let usage = null
         // 逐块读取流式响应
         let fullContent = ''
         for await (const chunk of stream) {
@@ -66,8 +67,11 @@ app.post('/api/chat', async (req, res) => {
                 // 以 SSE 格式发送数据：data:{json}\n\n
                 res.write(`data:${JSON.stringify({ content })}\n\n`)
             }
+            if (chunk.usage) {
+                usage = chunk.usage
+            }
         }
-        res.write(`data:${JSON.stringify({ sources })}\n\n`)
+        res.write(`data:${JSON.stringify({ sources, usage })}\n\n`)
         // 发送结束标记
         res.write('data:[DONE]\n\n')
         res.end()

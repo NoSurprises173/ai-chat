@@ -32,10 +32,12 @@ const PdfUpload: React.FC<Props> = ({  loading }) => {
         }
 
         try {
-            message.loading('正在解析 PDF...')
+            message.loading('正在解析 PDF...',0)
             const result = await uploadPDF(file)
+            message.destroy()
             message.success(`PDF 解析成功：${result.pages} 页`)
         } catch (err: any) {
+            message.destroy()
             message.error(`上传失败：${err.message}`)
         }
 

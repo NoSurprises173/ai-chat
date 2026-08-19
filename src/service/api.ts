@@ -36,6 +36,7 @@ export async function sendMessageStream(
     content: string,
     onChunk: (text: string) => void,
     onSources: (sources: { fileName: string; text: string }[]) => void,
+    onUsage: (usage: number) => void,
     signal?: AbortSignal
 ): Promise<void> {
     const response = await fetch(`${API_BASE}/api/chat`, {
@@ -83,6 +84,10 @@ export async function sendMessageStream(
                     }
                     if (parsed.sources) {
                         onSources(parsed.sources)
+                    }
+                    if (parsed.usage) {
+                        console.log(parsed.usage.total_tokens, 'api')
+                        onUsage(parsed.usage.total_tokens)
                     }
                     // 收到错误信息
                     if (parsed.error) {

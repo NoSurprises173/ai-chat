@@ -4,7 +4,8 @@ import { SendOutlined } from "@ant-design/icons";
 
 interface Props {
     onSend: (content: string )=> void   // 发送消息的回调函数
-    loading?: boolean                    // 是否正在等待回复
+    loading?: boolean,                    // 是否正在等待回复
+    onStop:()=>void
 }
 
 /**
@@ -12,7 +13,7 @@ interface Props {
  * 负责消息输入、键盘事件处理、发送逻辑
  * 支持 Enter 发送、Shift+Enter 换行
  */
-const ChatInput: React.FC<Props> = ({ onSend, loading }) => {
+const ChatInput: React.FC<Props> = ({ onSend, loading,onStop }) => {
     // 输入框内容状态
     const [value, setValue] = useState('')
 
@@ -22,6 +23,10 @@ const ChatInput: React.FC<Props> = ({ onSend, loading }) => {
      */
     const handleSend = () => {
         const trimmed = value.trim()
+        if(loading) {
+            onStop()
+        return
+    }
         if (!trimmed || loading) return   // 空消息或加载中不发送
         onSend(trimmed)                   // 调用父组件传入的回调
         setValue('')                      // 清空输入框
@@ -40,7 +45,7 @@ const ChatInput: React.FC<Props> = ({ onSend, loading }) => {
     }
 
     return (
-        <div className="input-area" style={{ display: 'flex', gap: 8 }}>
+        <div className="input-area" style={{ display: 'flex', gap: 8,alignItems:'center' }}>
             {/* 输入框：自动撑高，最多 4 行 */}
             <Input.TextArea
                 value={value}
@@ -56,8 +61,8 @@ const ChatInput: React.FC<Props> = ({ onSend, loading }) => {
                 type="primary"
                 icon={<SendOutlined />}
                 onClick={handleSend}
-                loading={loading}
-                disabled={!value.trim()}
+                // loading={loading}
+                disabled={!value.trim()&&!loading}
             >
                 {!loading?'发送':'暂停'}
                 {/* 发送 */}
